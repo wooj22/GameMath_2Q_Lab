@@ -10,6 +10,7 @@ public class BossController : MonoBehaviour
     [SerializeField] private int attackCoolTime = 6;
 
     private int attackIndex = 1;        // 1, 2, 3
+    private bool isHit;
 
     // player
     private GameObject player;
@@ -17,6 +18,7 @@ public class BossController : MonoBehaviour
 
     // component
     BossAttackHandler attackHandler;
+    [SerializeField] private SpriteRenderer sr;
 
     void Start()
     {
@@ -73,7 +75,25 @@ public class BossController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         hp -= damage;
-        if (hp < 0) hp = 0;
+        if (hp <= 0)
+        {
+            damage = 0;
+            GameManager.Instance.GameClear();
+            Destroy(this.gameObject);
+        }
+
+        if (!isHit) StartCoroutine(BlinkRed());
         UIManager.Instance.UpdateBossHp(hp);
+    }
+
+    private IEnumerator BlinkRed()
+    {
+        isHit = true;
+
+        sr.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        sr.color = Color.white;
+
+        isHit = false;
     }
 }

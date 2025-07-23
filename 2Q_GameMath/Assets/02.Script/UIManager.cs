@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Image bossHp_Image;
     [SerializeField] Image boost_Image;
     [SerializeField] Image playerHp_Image;
+    [SerializeField] Text end_text;
 
     private float bossMaxHp;
     private float playerMaxHp;
@@ -55,5 +56,10 @@ public class UIManager : MonoBehaviour
     public void UpdatePlayerBoost(float time)
     {
         boost_Image.fillAmount = time/ boostCoolTime;
+    }
+
+    public void UpDateEndText(string text)
+    {
+        end_text.text = text;
     }
 }

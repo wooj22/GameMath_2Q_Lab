@@ -17,14 +17,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float boostTime = 2f;
     [SerializeField] private float boostCoolTime = 5;
 
+    [SerializeField] private float shootCoolTime = 0.05f;
+
     // contol
     private float boostTimeDelta = 0;
+    private float shootCoolTimeDelta = 0;
     private bool isHit;
     private bool isBoost;
+    private bool isMoveStop;
 
     // asset
     [SerializeField] private SpriteRenderer sr1;
     [SerializeField] private SpriteRenderer sr2;
+    [SerializeField] private GameObject bullet;
 
     // key
     [SerializeField] private KeyCode boostKey;
@@ -52,6 +57,9 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         boostTimeDelta += Time.deltaTime;
+        shootCoolTimeDelta += Time.deltaTime;
+
+        Attack();
         FollowMouse();
         Boost();
         ClampPosition();
@@ -72,17 +80,17 @@ public class PlayerController : MonoBehaviour
         // 마우스까지의 방향
         Vector3 mouseWorldPos = cam.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0f;
-        Vector3 dir = (mouseWorldPos - transform.position);
-        float distance = dir.magnitude;
+        Vector3 mouseDir = (mouseWorldPos - transform.position);
+        float distance = mouseDir.magnitude;
 
         // 회전
-        if (dir.sqrMagnitude > 0.001f)
-            transform.up = dir;
+        if (mouseDir.sqrMagnitude > 0.001f)
+            transform.up = mouseDir;
 
         // 이동
-        if (distance > 0.5f)
+        if (distance > 0.5f && !isMoveStop)
         {
-            Vector3 moveDir = dir.normalized;
+            Vector3 moveDir = mouseDir.normalized;
             transform.position += moveDir * curSpeed * Time.deltaTime;
         }
     }
@@ -102,6 +110,29 @@ public class PlayerController : MonoBehaviour
         clamped.y = Mathf.Clamp(clamped.y, min.y, max.y);
 
         transform.position = clamped;
+    }
+
+    // Attack
+    void Attack()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            isMoveStop = true;
+            if (shootCoolTimeDelta >= shootCoolTime)
+            {
+                Shoot();
+                shootCoolTimeDelta = 0;
+            }
+        }
+        else
+        {
+            isMoveStop = false;
+        }
+    }
+
+    void Shoot()
+    {
+        Instantiate(bullet, this.transform.position, Quaternion.identity);
     }
 
     // Move Boost
@@ -136,9 +167,10 @@ public class PlayerController : MonoBehaviour
         if (isBoost) return;
  
         hp -=damage;
-        if (hp < 0)
+        if (hp <= 0)
         {
             damage = 0;
+            GameManager.Instance.GameOver();
             Destroy(this.gameObject);
         }
 
