@@ -1376,6 +1376,34 @@ PrefabInstance:
       propertyPath: firePoint_R
       value: 
       objectReference: {fileID: 2121540613}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.data[0]
+      value: 
+      objectReference: {fileID: 1056226383}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.data[1]
+      value: 
+      objectReference: {fileID: 1336304870}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.data[2]
+      value: 
+      objectReference: {fileID: 302464449}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.data[3]
+      value: 
+      objectReference: {fileID: 1594545974}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.data[4]
+      value: 
+      objectReference: {fileID: 1023896545}
+    - target: {fileID: 5353003809121300705, guid: 87cddb53e25b798488d4b8ec1b900475, type: 3}
+      propertyPath: controlPoints.Array.data[5]
+      value: 
+      objectReference: {fileID: 306603897}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

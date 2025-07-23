@@ -10,6 +10,7 @@ public class BossAttackHandler : MonoBehaviour
     [SerializeField] private GameObject bullet3;        // arrow bullet
     [SerializeField] private Transform firePoint_L;
     [SerializeField] private Transform firePoint_R;
+    [SerializeField] private Transform[] controlPoints;
 
     // player
     private GameObject player;
@@ -21,7 +22,7 @@ public class BossAttackHandler : MonoBehaviour
 
     public void Attack1() => StartCoroutine(CubicBezierDoubleSpread());
     public void Attack2() => CubicBezierDoubleStream();
-    public void Attack3() => StartCoroutine(HermiteFanVolley());
+    public void Attack3() => StartCoroutine(SpawnMultipleSpear());
 
     // Attack 1
     IEnumerator CubicBezierDoubleSpread()
@@ -136,80 +137,54 @@ public class BossAttackHandler : MonoBehaviour
         Destroy(bullet.gameObject);
     }
 
-    // Attack 3 : Hermite Curve
-    IEnumerator HermiteFanVolley()
+    // Attack 3
+    IEnumerator SpawnMultipleSpear()
     {
-        int repeatCount = 3;                 // 몇 번 반복할지
-        int projectileCount = 7;            // 한번에 몇 발 쏠지
-        float duration = 2f;                // 탄환 하나의 지속시간
-        float spreadAngle = 60f;            // 퍼짐 각도 증가시켜 더 멋지게
-        float delayBetweenVolleys = 0.4f;   // volley 간 간격
+        int spearCount = 6;        // 6개 생성
+        float spawnInterval = 1f;
 
-        for (int repeat = 0; repeat < repeatCount; repeat++)
+        for (int i = 0; i < spearCount; i++)
         {
-            for (int i = 0; i < projectileCount; i++)
-            {
-                float t = (float)i / (projectileCount - 1);
-                float angleOffset = Mathf.Lerp(-spreadAngle / 2f, spreadAngle / 2f, t);
+            Transform firePoint = (i % 2 == 0) ? firePoint_L : firePoint_R;
 
-                Quaternion rotation = Quaternion.Euler(0, 0, angleOffset);
-                Vector3 dir = rotation * -transform.up;
+            GameObject bullet = Instantiate(bullet3, firePoint.position, Quaternion.identity);
+            StartCoroutine(MoveAlongRandomSpline(bullet.transform, 5f)); // 10초 -> 5초로 절반 (속도 2배)
 
-                Vector3 p0 = (i % 2 == 0 ? firePoint_L.position : firePoint_R.position);
-                Vector3 p1 = p0 + dir * Random.Range(8f, 12f); // 도착점 거리도 살짝 랜덤
-
-                // Hermite 탄젠트 벡터를 더 화려하게
-                Vector3 randomTangentOffset = new Vector3(
-                    Random.Range(-2f, 2f),
-                    Random.Range(-2f, 2f),
-                    0f
-                );
-                Vector3 m0 = dir * Random.Range(3f, 6f) + randomTangentOffset;
-                Vector3 m1 = -dir * Random.Range(2f, 4f) + randomTangentOffset;
-
-                GameObject bullet = Instantiate(bullet3, p0, Quaternion.identity);
-                StartCoroutine(MoveHermiteAndRotate(bullet.transform, p0, p1, m0, m1, duration));
-            }
-
-            yield return new WaitForSeconds(delayBetweenVolleys);
+            yield return new WaitForSeconds(spawnInterval);
         }
     }
 
-    IEnumerator MoveHermiteAndRotate(Transform bullet, Vector3 p0, Vector3 p1, Vector3 m0, Vector3 m1, float duration)
+    IEnumerator MoveAlongRandomSpline(Transform bullet, float totalDuration)
     {
         float elapsed = 0f;
+        Vector3 currentDir = bullet.up;
 
-        while (elapsed < duration)
+        Vector3[] points = new Vector3[controlPoints.Length];
+        for (int i = 0; i < controlPoints.Length; i++)
+            points[i] = controlPoints[i].position;
+
+        ShuffleArray(points);
+
+        while (elapsed < totalDuration)
         {
-            float t = elapsed / duration;
-            float t2 = t * t;
-            float t3 = t2 * t;
+            float t = elapsed / totalDuration;
 
-            Vector3 pos =
-                (2 * t3 - 3 * t2 + 1) * p0 +
-                (t3 - 2 * t2 + t) * m0 +
-                (-2 * t3 + 3 * t2) * p1 +
-                (t3 - t2) * m1;
+            float scaledT = t * (points.Length - 1);
+            int segment = Mathf.Min(Mathf.FloorToInt(scaledT), points.Length - 2);
+            float segmentT = scaledT - segment;
 
-            // 방향 회전
-            if (t < 0.99f)
-            {
-                float dt = 0.01f;
-                float tNext = Mathf.Min(t + dt, 1f);
-                float tNext2 = tNext * tNext;
-                float tNext3 = tNext2 * tNext;
+            Vector3 p0 = points[Mathf.Clamp(segment - 1, 0, points.Length - 1)];
+            Vector3 p1 = points[segment];
+            Vector3 p2 = points[segment + 1];
+            Vector3 p3 = points[Mathf.Clamp(segment + 2, 0, points.Length - 1)];
 
-                Vector3 nextPos =
-                    (2 * tNext3 - 3 * tNext2 + 1) * p0 +
-                    (tNext3 - 2 * tNext2 + tNext) * m0 +
-                    (-2 * tNext3 + 3 * tNext2) * p1 +
-                    (tNext3 - tNext2) * m1;
-
-                Vector3 dir = (nextPos - pos).normalized;
-                bullet.up = dir;
-            }
-
+            Vector3 pos = CatmullRom(p0, p1, p2, p3, segmentT);
             bullet.position = pos;
+
+            Vector3 tangent = CatmullRomTangent(p0, p1, p2, p3, segmentT).normalized;
+            currentDir = Vector3.Slerp(currentDir, tangent, Time.deltaTime * 5f);
+            bullet.up = currentDir;
+
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -217,5 +192,37 @@ public class BossAttackHandler : MonoBehaviour
         Destroy(bullet.gameObject);
     }
 
+    void ShuffleArray(Vector3[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            Vector3 temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
+
+    // Catmull-Rom spline 계산 함수
+    Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+    {
+        float t2 = t * t;
+        float t3 = t2 * t;
+
+        return 0.5f * ((2f * p1) +
+            (-p0 + p2) * t +
+            (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 +
+            (-p0 + 3f * p1 - 3f * p2 + p3) * t3);
+    }
+
+    // Catmull-Rom 접선 계산 함수
+    Vector3 CatmullRomTangent(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+    {
+        float t2 = t * t;
+
+        return 0.5f * ((-p0 + p2) +
+            2f * (2f * p0 - 5f * p1 + 4f * p2 - p3) * t +
+            3f * (-p0 + 3f * p1 - 3f * p2 + p3) * t2);
+    }
 }
 
