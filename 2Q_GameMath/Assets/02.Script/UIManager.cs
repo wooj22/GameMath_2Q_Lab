@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Image bossHp_Image;
     [SerializeField] Image boost_Image;
 
-    private int bossMaxHp;
+    private float bossMaxHp;
     private float boostCoolTime;
 
     public static UIManager Instance { get; private set; }
@@ -25,7 +25,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void SetBossMaxHp(int hp) 
+    public void SetBossMaxHp(float hp) 
     {
         bossMaxHp = hp; 
     }
@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour
         boostCoolTime = time; 
     }
 
-    public void UpdateBossHp(int hp)
+    public void UpdateBossHp(float hp)
     {
         bossHp_Image.fillAmount = hp / bossMaxHp;
     }

@@ -40,6 +40,15 @@ public class PlayerMove : MonoBehaviour
         FollowMouse();
         Boost();
         ClampPosition();
+
+        // test
+        if (Input.GetMouseButtonDown(0))
+        {
+            GameObject.Find("Boss").GetComponent<BossController>().TakeDamage(100);
+        }
+
+        // ui
+        UIManager.Instance.UpdatePlayerBoost(boostTimeDelta);
     }
 
     // 마우스를 바라보며 이동

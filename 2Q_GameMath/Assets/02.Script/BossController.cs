@@ -38,4 +38,11 @@ public class BossController : MonoBehaviour
         if (dir.sqrMagnitude > 0.001f)
             transform.up = -dir;
     }
+
+    public void TakeDamage(int damage)
+    {
+        hp -= damage;
+        if (hp < 0) hp = 0;
+        UIManager.Instance.UpdateBossHp(hp);
+    }
 }
