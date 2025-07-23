@@ -20,7 +20,7 @@ public class BossAttackHandler : MonoBehaviour
     }
 
     public void Attack1() => StartCoroutine(CubicBezierDoubleSpread());
-    public void Attack2() => StartCoroutine(QuadraticSpread());
+    public void Attack2() => CubicBezierDoubleStream();
     public void Attack3() => StartCoroutine(HermiteAOE());
 
     // Attack 1
@@ -87,50 +87,54 @@ public class BossAttackHandler : MonoBehaviour
         Destroy(bullet);
     }
 
-    // 🔸 Attack 2: Quadratic Bézier - 부채꼴 곡선 탄막 (여러 발)
-    IEnumerator QuadraticSpread()
+    // Attack 2
+    void CubicBezierDoubleStream()
     {
-        int shotCount = 10;
-        float interval = 0.08f;
-        float spreadOffset = 1.5f;
-        float duration = 3f;
+        int bulletCount = 30;
+        float duration = 5f;
+        float spiralScale = 10f;
 
-        for (int i = 0; i < shotCount; i++)
+        for (int i = 0; i < bulletCount; i++)
         {
-            // 교차 발사: 왼손과 오른손 번갈아 사용
+            float angleOffset = 360f / bulletCount * i;
+
+            // 좌우 손 랜덤 사용
             Transform firePoint = (i % 2 == 0) ? firePoint_L : firePoint_R;
-            Vector3 start = firePoint.position;
 
-            // 사선 방향으로 퍼지도록 곡선 설정
-            float xOffset = ((i % 5) - 2) * spreadOffset;
-            Vector3 control = start + transform.up * 3f + transform.right * xOffset;
-            Vector3 end = start + transform.up * 7f + transform.right * xOffset * 1.2f;
-
-            GameObject bullet = Instantiate(bullet2, start, Quaternion.identity);
-            StartCoroutine(MoveQuadratic(bullet.transform, start, control, end, duration));
-
-            yield return new WaitForSeconds(interval);
+            GameObject bullet = Instantiate(bullet2, firePoint.position, Quaternion.identity);
+            StartCoroutine(SpiralBulletMove(bullet.transform, firePoint.position, duration, angleOffset, spiralScale));
         }
     }
 
-    IEnumerator MoveQuadratic(Transform bullet, Vector3 start, Vector3 control, Vector3 end, float duration)
+    IEnumerator SpiralBulletMove(Transform bullet, Vector3 origin, float duration, float angleOffset, float spiralScale)
     {
-            float elapsed = 0f;
-            while (elapsed < duration)
-            {
-                float t = elapsed / duration;
-                Vector3 pos =
-                    Mathf.Pow(1 - t, 2) * start +
-                    2 * (1 - t) * t * control +
-                    t * t * end;
+        float time = 0f;
 
-                bullet.position = pos;
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
+        // 색상도 랜덤하게 줄 수 있음
+        SpriteRenderer sr = bullet.GetComponent<SpriteRenderer>();
+        sr.color = Random.ColorHSV(0, 1, 0.8f, 1f, 1f, 1f);
 
-            Destroy(bullet.gameObject);
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            float t = time / duration;
+
+            // 탄환의 반경 증가 (멀어짐)
+            float radius = t * spiralScale;
+
+            // 나선 각도 회전
+            float angle = (t * 720f) + angleOffset; // 한탄환 기준 각도 오프셋
+
+            float rad = angle * Mathf.Deg2Rad;
+            Vector3 offset = new Vector3(Mathf.Cos(rad), Mathf.Sin(rad), 0) * radius;
+
+            bullet.position = origin + offset;
+
+            yield return null;
         }
+
+        Destroy(bullet.gameObject);
+    }
 
     // 🔸 Attack 3: Hermite Curve - AOE 예고 + 돌진 (직선 느낌)
     IEnumerator HermiteAOE()
