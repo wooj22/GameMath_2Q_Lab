@@ -6,10 +6,17 @@ using UnityEngine;
 public class PlayerMove : MonoBehaviour
 {
     // stat
-    public float speed = 5f;
+    [SerializeField] private float curSpeed;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float speedBoost = 12f;
+    [SerializeField] private float boostTime = 2f;
+    [SerializeField] private float boostCoolTime = 5;
 
-    private Vector3 moveDirection;
-    private bool isMoving = false;
+    // contol
+    private float boostTimeDelta = 0;
+
+    // key
+    [SerializeField] private KeyCode boostKey;
 
     // component
     private Rigidbody2D rb;
@@ -17,13 +24,21 @@ public class PlayerMove : MonoBehaviour
 
     private void Start()
     {
+        curSpeed = moveSpeed;
+        boostTimeDelta = boostCoolTime;
         rb = GetComponent<Rigidbody2D>();
         cam = Camera.main;
+
+        // ui
+        UIManager.Instance.SetBoostCoolTime(boostCoolTime);
+        UIManager.Instance.UpdatePlayerBoost(boostTimeDelta);
     }
 
     void Update()
     {
+        boostTimeDelta += Time.deltaTime;
         FollowMouse();
+        Boost();
         ClampPosition();
     }
 
@@ -44,7 +59,7 @@ public class PlayerMove : MonoBehaviour
         if (distance > 0.5f)
         {
             Vector3 moveDir = dir.normalized;
-            transform.position += moveDir * speed * Time.deltaTime;
+            transform.position += moveDir * curSpeed * Time.deltaTime;
         }
     }
 
@@ -63,5 +78,22 @@ public class PlayerMove : MonoBehaviour
         clamped.y = Mathf.Clamp(clamped.y, min.y, max.y);
 
         transform.position = clamped;
+    }
+
+    // Move Boost
+    void Boost()
+    {
+        if(Input.GetKeyDown(boostKey) && boostTimeDelta >= boostCoolTime)
+        {
+            curSpeed = speedBoost;
+            boostTimeDelta = 0;
+
+            Invoke(nameof(RevertSpeed), boostTime);
+        }
+    }
+
+    void RevertSpeed()
+    {
+        curSpeed = moveSpeed;
     }
 }
