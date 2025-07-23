@@ -122,6 +122,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!212 &115515307 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2389365741509937363, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
+  m_PrefabInstance: {fileID: 96721488479998738}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &176520294
 GameObject:
   m_ObjectHideFlags: 0
@@ -1099,6 +1104,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1912107215}
   m_CullTransparentMesh: 1
+--- !u!212 &1961085480 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5818501358373722280, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
+  m_PrefabInstance: {fileID: 96721488479998738}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1989790291
 GameObject:
   m_ObjectHideFlags: 0
@@ -1291,8 +1301,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6428529819047521009, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
+      propertyPath: sr1
+      value: 
+      objectReference: {fileID: 1961085480}
+    - target: {fileID: 6428529819047521009, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
+      propertyPath: sr2
+      value: 
+      objectReference: {fileID: 115515307}
+    - target: {fileID: 6428529819047521009, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
+      propertyPath: maxhp
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 9047735500383481304, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
       propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 9047735500383481304, guid: 7ca88403a7ff78c4089dd5703a668da6, type: 3}
+      propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []

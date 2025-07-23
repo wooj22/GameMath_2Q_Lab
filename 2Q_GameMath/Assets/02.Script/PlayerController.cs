@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMove : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     // stat
+    [SerializeField] private int hp;
+    [SerializeField] private int maxhp = 100;
+
     [SerializeField] private float curSpeed;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float speedBoost = 12f;
@@ -14,6 +18,11 @@ public class PlayerMove : MonoBehaviour
 
     // contol
     private float boostTimeDelta = 0;
+    private bool isHit;
+
+    // asset
+    [SerializeField] private SpriteRenderer sr1;
+    [SerializeField] private SpriteRenderer sr2;
 
     // key
     [SerializeField] private KeyCode boostKey;
@@ -24,6 +33,7 @@ public class PlayerMove : MonoBehaviour
 
     private void Start()
     {
+        hp = maxhp;
         curSpeed = moveSpeed;
         boostTimeDelta = boostCoolTime;
         rb = GetComponent<Rigidbody2D>();
@@ -104,5 +114,32 @@ public class PlayerMove : MonoBehaviour
     void RevertSpeed()
     {
         curSpeed = moveSpeed;
+    }
+
+    // Hit
+    public void TakeDamage(int damage)
+    {
+        hp-=damage;
+        if (hp < 0)
+        {
+            damage = 0;
+            Destroy(this.gameObject);
+        }
+
+        if(!isHit) StartCoroutine(BlinkRed());
+        Debug.Log("Player Hit! 남은 체력 : " + hp);
+    }
+
+    private IEnumerator BlinkRed()
+    {
+        isHit = true;
+
+        sr1.color = Color.red;
+        sr2.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        sr1.color = Color.white;
+        sr2.color = Color.white;
+
+        isHit = false;
     }
 }
