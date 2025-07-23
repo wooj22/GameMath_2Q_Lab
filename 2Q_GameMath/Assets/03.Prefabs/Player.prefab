@@ -651,7 +651,7 @@ GameObject:
   - component: {fileID: 6428529819047521009}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -746,9 +746,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa2e28af058b4824892400d022f58fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hp: 0
+  maxhp: 100
   curSpeed: 0
   moveSpeed: 5
   speedBoost: 12
   boostTime: 2
   boostCoolTime: 5
-  boostKey: 304
+  sr1: {fileID: 5818501358373722280}
+  sr2: {fileID: 2389365741509937363}
+  boostKey: 32

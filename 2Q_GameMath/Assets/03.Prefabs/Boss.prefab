@@ -236,6 +236,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hp: 10000
   maxhp: 10000
+  attackCoolTime: 7
 --- !u!114 &5353003809121300705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,11 +249,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fcddd06c1c0648448722bd9f6180d42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet1: {fileID: 0}
-  bullet2: {fileID: 0}
-  bullet3: {fileID: 0}
-  firePoint_L: {fileID: 0}
-  firePoint_R: {fileID: 0}
+  bullet1: {fileID: 6329439504311459498, guid: 9655648b4d227f64a803bde0418a3962, type: 3}
+  bullet2: {fileID: 8083379543722502765, guid: 6167d5c724905cf4ebb7c832ed8357d3, type: 3}
+  bullet3: {fileID: 428698861360653706, guid: 455b206173f8a9c41a999e3c5dd43659, type: 3}
+  firePoint_L: {fileID: 1839845562010977585}
+  firePoint_R: {fileID: 7779817138881012213}
+  controlPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1589622199150808509
 GameObject:
   m_ObjectHideFlags: 0

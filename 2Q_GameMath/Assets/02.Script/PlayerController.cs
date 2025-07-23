@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ public class PlayerController : MonoBehaviour
     // contol
     private float boostTimeDelta = 0;
     private bool isHit;
+    private bool isBoost;
 
     // asset
     [SerializeField] private SpriteRenderer sr1;
@@ -40,6 +42,9 @@ public class PlayerController : MonoBehaviour
         cam = Camera.main;
 
         // ui
+        UIManager.Instance.SetPlayerMaxHp(maxhp);
+        UIManager.Instance.UpdatePlayerHp(hp);
+
         UIManager.Instance.SetBoostCoolTime(boostCoolTime);
         UIManager.Instance.UpdatePlayerBoost(boostTimeDelta);
     }
@@ -104,8 +109,12 @@ public class PlayerController : MonoBehaviour
     {
         if(Input.GetKeyDown(boostKey) && boostTimeDelta >= boostCoolTime)
         {
+            isBoost = true;
             curSpeed = speedBoost;
             boostTimeDelta = 0;
+
+            sr1.color = Color.green;
+            sr2.color = Color.green;
 
             Invoke(nameof(RevertSpeed), boostTime);
         }
@@ -113,20 +122,28 @@ public class PlayerController : MonoBehaviour
 
     void RevertSpeed()
     {
+        isBoost = false;
         curSpeed = moveSpeed;
+
+        sr1.color = Color.gray;
+        sr2.color = Color.gray;
     }
 
     // Hit
     public void TakeDamage(int damage)
     {
-        hp-=damage;
+        // 부스트중 무적
+        if (isBoost) return;
+ 
+        hp -=damage;
         if (hp < 0)
         {
             damage = 0;
             Destroy(this.gameObject);
         }
 
-        if(!isHit) StartCoroutine(BlinkRed());
+        UIManager.Instance.UpdatePlayerHp(hp);
+        if (!isHit) StartCoroutine(BlinkRed());
         Debug.Log("Player Hit! 남은 체력 : " + hp);
     }
 
@@ -137,8 +154,8 @@ public class PlayerController : MonoBehaviour
         sr1.color = Color.red;
         sr2.color = Color.red;
         yield return new WaitForSeconds(0.1f);
-        sr1.color = Color.white;
-        sr2.color = Color.white;
+        sr1.color = Color.gray;
+        sr2.color = Color.gray;
 
         isHit = false;
     }
