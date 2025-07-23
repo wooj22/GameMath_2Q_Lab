@@ -26,54 +26,25 @@ public class BossAttackHandler : MonoBehaviour
     // Attack 1
     IEnumerator CubicBezierDoubleSpread()
     {
-        int burstCount = 5;                     // 손 하나당 발사할 총알 수
-        float fireRate = 0.2f;                  // 한 발당 딜레이
-        float duration = 1.5f;                  // 탄이 도달하는 시간
-        float spreadAmount = 2.5f;              // 곡선 퍼짐 정도
+        int burstCount = 5;
+        float fireRate = 0.2f;
+        float duration = 1.5f;
+        float spreadAmount = 2.5f;
 
-        // 왼손
-        for (int i = 0; i < burstCount; i++)
+        Transform[] hands = new Transform[] { firePoint_L, firePoint_R, firePoint_L, firePoint_R };
+
+        foreach (var hand in hands)
         {
-            Vector3 curveOffset = firePoint_L.right * Random.Range(-spreadAmount, spreadAmount);
-            Vector3 targetPos = player.transform.position;
-            StartCoroutine(CubicMoveBullet(firePoint_L.position, targetPos, curveOffset, duration));
-            yield return new WaitForSeconds(fireRate);
+            for (int i = 0; i < burstCount; i++)
+            {
+                Vector3 curveOffset = hand.right * Random.Range(-spreadAmount, spreadAmount);
+                Vector3 targetPos = player.transform.position;
+                StartCoroutine(CubicMoveBullet(hand.position, targetPos, curveOffset, duration));
+                yield return new WaitForSeconds(fireRate);
+            }
+
+            yield return new WaitForSeconds(0.5f);
         }
-
-        yield return new WaitForSeconds(0.5f);
-
-        // 오른손
-        for (int i = 0; i < burstCount; i++)
-        {
-            Vector3 curveOffset = firePoint_R.right * Random.Range(-spreadAmount, spreadAmount);
-            Vector3 targetPos = player.transform.position;
-            StartCoroutine(CubicMoveBullet(firePoint_R.position, targetPos, curveOffset, duration));
-            yield return new WaitForSeconds(fireRate);
-        }
-
-        yield return new WaitForSeconds(0.5f);
-
-        // 왼손
-        for (int i = 0; i < burstCount; i++)
-        {
-            Vector3 curveOffset = firePoint_L.right * Random.Range(-spreadAmount, spreadAmount);
-            Vector3 targetPos = player.transform.position;
-            StartCoroutine(CubicMoveBullet(firePoint_L.position, targetPos, curveOffset, duration));
-            yield return new WaitForSeconds(fireRate);
-        }
-
-        yield return new WaitForSeconds(0.5f);
-
-        // 오른손
-        for (int i = 0; i < burstCount; i++)
-        {
-            Vector3 curveOffset = firePoint_R.right * Random.Range(-spreadAmount, spreadAmount);
-            Vector3 targetPos = player.transform.position;
-            StartCoroutine(CubicMoveBullet(firePoint_R.position, targetPos, curveOffset, duration));
-            yield return new WaitForSeconds(fireRate);
-        }
-
-        yield return new WaitForSeconds(0.5f);
     }
 
     IEnumerator CubicMoveBullet(Vector3 start, Vector3 end, Vector3 curveOffset, float duration)
