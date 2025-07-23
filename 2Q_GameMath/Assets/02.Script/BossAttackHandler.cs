@@ -21,7 +21,7 @@ public class BossAttackHandler : MonoBehaviour
 
     public void Attack1() => StartCoroutine(CubicBezierDoubleSpread());
     public void Attack2() => CubicBezierDoubleStream();
-    public void Attack3() => StartCoroutine(HermiteAOE());
+    public void Attack3() => StartCoroutine(HermiteFanVolley());
 
     // Attack 1
     IEnumerator CubicBezierDoubleSpread()
@@ -110,7 +110,7 @@ public class BossAttackHandler : MonoBehaviour
     {
         float time = 0f;
 
-        // 색상도 랜덤하게 줄 수 있음
+        // 색상 랜덤
         SpriteRenderer sr = bullet.GetComponent<SpriteRenderer>();
         sr.color = Random.ColorHSV(0, 1, 0.8f, 1f, 1f, 1f);
 
@@ -136,19 +136,48 @@ public class BossAttackHandler : MonoBehaviour
         Destroy(bullet.gameObject);
     }
 
-    // 🔸 Attack 3: Hermite Curve - AOE 예고 + 돌진 (직선 느낌)
-    IEnumerator HermiteAOE()
+    // Attack 3 : Hermite Curve
+    IEnumerator HermiteFanVolley()
     {
-        Vector3 p0 = firePoint_L.position;
-        Vector3 p1 = player.transform.position + Vector3.down * 1f;
+        int repeatCount = 3;                 // 몇 번 반복할지
+        int projectileCount = 7;            // 한번에 몇 발 쏠지
+        float duration = 2f;                // 탄환 하나의 지속시간
+        float spreadAngle = 60f;            // 퍼짐 각도 증가시켜 더 멋지게
+        float delayBetweenVolleys = 0.4f;   // volley 간 간격
 
-        Vector3 m0 = transform.up * 5f;  // 초기 방향성
-        Vector3 m1 = Vector3.zero;
+        for (int repeat = 0; repeat < repeatCount; repeat++)
+        {
+            for (int i = 0; i < projectileCount; i++)
+            {
+                float t = (float)i / (projectileCount - 1);
+                float angleOffset = Mathf.Lerp(-spreadAngle / 2f, spreadAngle / 2f, t);
 
-        float duration = 1.5f;
+                Quaternion rotation = Quaternion.Euler(0, 0, angleOffset);
+                Vector3 dir = rotation * -transform.up;
+
+                Vector3 p0 = (i % 2 == 0 ? firePoint_L.position : firePoint_R.position);
+                Vector3 p1 = p0 + dir * Random.Range(8f, 12f); // 도착점 거리도 살짝 랜덤
+
+                // Hermite 탄젠트 벡터를 더 화려하게
+                Vector3 randomTangentOffset = new Vector3(
+                    Random.Range(-2f, 2f),
+                    Random.Range(-2f, 2f),
+                    0f
+                );
+                Vector3 m0 = dir * Random.Range(3f, 6f) + randomTangentOffset;
+                Vector3 m1 = -dir * Random.Range(2f, 4f) + randomTangentOffset;
+
+                GameObject bullet = Instantiate(bullet3, p0, Quaternion.identity);
+                StartCoroutine(MoveHermiteAndRotate(bullet.transform, p0, p1, m0, m1, duration));
+            }
+
+            yield return new WaitForSeconds(delayBetweenVolleys);
+        }
+    }
+
+    IEnumerator MoveHermiteAndRotate(Transform bullet, Vector3 p0, Vector3 p1, Vector3 m0, Vector3 m1, float duration)
+    {
         float elapsed = 0f;
-
-        GameObject marker = Instantiate(bullet3, p0, Quaternion.identity);
 
         while (elapsed < duration)
         {
@@ -162,13 +191,31 @@ public class BossAttackHandler : MonoBehaviour
                 (-2 * t3 + 3 * t2) * p1 +
                 (t3 - t2) * m1;
 
-            marker.transform.position = pos;
+            // 방향 회전
+            if (t < 0.99f)
+            {
+                float dt = 0.01f;
+                float tNext = Mathf.Min(t + dt, 1f);
+                float tNext2 = tNext * tNext;
+                float tNext3 = tNext2 * tNext;
+
+                Vector3 nextPos =
+                    (2 * tNext3 - 3 * tNext2 + 1) * p0 +
+                    (tNext3 - 2 * tNext2 + tNext) * m0 +
+                    (-2 * tNext3 + 3 * tNext2) * p1 +
+                    (tNext3 - tNext2) * m1;
+
+                Vector3 dir = (nextPos - pos).normalized;
+                bullet.up = dir;
+            }
+
+            bullet.position = pos;
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        Destroy(marker);
-        // 여기에 폭발 이펙트 또는 충돌 처리 가능
+        Destroy(bullet.gameObject);
     }
+
 }
 
