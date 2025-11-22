@@ -13,5 +13,4 @@
 랜덤한 스플라인 경로로 빠르게 움직이는 창 형태의 탄환들을 순차적으로 발사하는 곡선 추적형 공격.(Catmull-Rom 스플라인을 이용하여 예측 불가능한 경로로 창이 움직이며 플레이어를 위협)
 
 
-## 영상
-[![영상]([https://img.youtube.com/vi/iwEdFb4ASW8/](https://www.youtube.com/watch?v=qtjiZs7Q-gE)0.jpg)]([https://www.youtube.com/watch?v=iwEdFb4ASW8](https://www.youtube.com/watch?v=qtjiZs7Q-gE))
+https://www.youtube.com/watch?v=qtjiZs7Q-gE
